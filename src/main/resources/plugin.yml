@@ -1,0 +1,7 @@
+name: Slipgate
+version: '${project.version}'
+main: me.ajmfactsheets.slipgate.Slipgate
+api-version: 1.19
+authors: [ AJMFactsheets ]
+description: Adds a fast travel dimension called "the slip" which is accessable through portals known as "slipgates". Using the slip allows you to travel 8x faster than using the nether and thus 64x faster than using the overworld.
+website: https://www.github.com/AJMFactsheets
