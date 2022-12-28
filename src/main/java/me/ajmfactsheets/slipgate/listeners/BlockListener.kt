@@ -27,7 +27,7 @@ class BlockListener: Listener {
 
     @EventHandler
     fun useFlintNSteel(event: BlockPlaceEvent) {
-        if (event.block.type == Material.FIRE && event.blockAgainst.type == SlipgateConstants.PORTAL_FRAME_MATERIAL && (event.block.world.name == SlipgateConstants.NETHER_WORLD_NAME || event.block.world.name == SlipgateConstants.SLIP_WORLD_NAME)) {
+        if (event.block.type == Material.FIRE && event.blockAgainst.type == SlipgateConstants.SLIPGATE_MATERIAL && (event.block.world.name == SlipgateConstants.NETHER_WORLD_NAME || event.block.world.name == SlipgateConstants.SLIP_WORLD_NAME)) {
             val world = event.block.world
             val location = event.block.location.clone()
 
@@ -56,13 +56,13 @@ class BlockListener: Listener {
         var height = 0
 
         // handle center
-        if (currentLocation.add(0.0, -1.0, 0.0).block.type == SlipgateConstants.PORTAL_FRAME_MATERIAL) {
+        if (currentLocation.add(0.0, -1.0, 0.0).block.type == SlipgateConstants.SLIPGATE_MATERIAL) {
             currentLocation.add(0.0, 1.0, 0.0)
             while (height <= SlipgateConstants.MAX_PORTAL_SIZE && (currentLocation.block.isEmpty || currentLocation.block.type == Material.FIRE)) {
                 currentLocation.add(0.0, 1.0, 0.0)
                 height++
             }
-            if (height < SlipgateConstants.MIN_PORTAL_HEIGHT || currentLocation.block.type != SlipgateConstants.PORTAL_FRAME_MATERIAL) {
+            if (height < SlipgateConstants.MIN_PORTAL_HEIGHT || currentLocation.block.type != SlipgateConstants.SLIPGATE_MATERIAL) {
                 return null
             }
         } else {
@@ -129,7 +129,7 @@ class BlockListener: Listener {
     private fun isPortalDirectionValid(location: Location, portalDirectionData: PortalDirectionData, height: Int, xVal: Double, zVal: Double) {
         var currentLocation = location.clone()
         currentLocation.add(xVal, 0.0, zVal)
-        while (portalDirectionData.width <= SlipgateConstants.MAX_PORTAL_SIZE && currentLocation.block.type.isEmpty && currentLocation.add(0.0, -1.0, 0.0).block.type == SlipgateConstants.PORTAL_FRAME_MATERIAL) {
+        while (portalDirectionData.width <= SlipgateConstants.MAX_PORTAL_SIZE && currentLocation.block.type.isEmpty && currentLocation.add(0.0, -1.0, 0.0).block.type == SlipgateConstants.SLIPGATE_MATERIAL) {
             var currentHeight = 0
             currentLocation.add(0.0, 1.0, 0.0)
             val originalLocation = currentLocation.clone()
@@ -137,7 +137,7 @@ class BlockListener: Listener {
                 currentLocation.add(0.0, 1.0, 0.0)
                 currentHeight++
             }
-            if (currentHeight != height || currentLocation.block.type != SlipgateConstants.PORTAL_FRAME_MATERIAL) {
+            if (currentHeight != height || currentLocation.block.type != SlipgateConstants.SLIPGATE_MATERIAL) {
                 portalDirectionData.isValid = false
             }
             currentLocation = originalLocation
@@ -145,11 +145,11 @@ class BlockListener: Listener {
             currentLocation.add(xVal, 0.0, zVal)
         }
         // Check for valid portal frame wall
-        if (portalDirectionData.isValid && currentLocation.block.type == SlipgateConstants.PORTAL_FRAME_MATERIAL) {
+        if (portalDirectionData.isValid && currentLocation.block.type == SlipgateConstants.SLIPGATE_MATERIAL) {
             var currentHeightLeft = height - 1
             while (portalDirectionData.isValid && currentHeightLeft > 0) {
                 currentLocation.add(0.0, 1.0, 0.0)
-                if (currentLocation.block.type == SlipgateConstants.PORTAL_FRAME_MATERIAL) {
+                if (currentLocation.block.type == SlipgateConstants.SLIPGATE_MATERIAL) {
                     currentHeightLeft--
                 } else {
                     portalDirectionData.isValid = false
