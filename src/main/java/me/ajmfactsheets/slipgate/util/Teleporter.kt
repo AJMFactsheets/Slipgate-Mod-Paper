@@ -19,6 +19,7 @@ class Teleporter {
         // TODO Travel.ogg not heard in End
         // TODO Make this work for entities as well not just players, see TeleportListener.kt for player implementation
         // TODO Code is very very very laggy when traveling from nether to overworld due to dimension expansion, possible rewrite or limit search radius
+        // TODO Potentially add a hashmap cache of portal locations or use vanilla POIs to help with this
         fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
             // Search for valid portal block & frame block
             val x = location.x.toInt()
@@ -73,14 +74,14 @@ class Teleporter {
                     while (minZ < maxZ) {
                         if (isGroundGapX(world, minX, minY, minZ)) {
                             createPortalX(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble(), minZ.toDouble())
+                            val teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble() + yOffset, minZ.toDouble())
                             entity.teleport(teleportDestination)
                             Bukkit.getWorld(teleportDestination.world.name)
                                 ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
                             return
                         } else if (isGroundGapZ(world, minX, minY, minZ)) {
                             createPortalZ(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, minX.toDouble(), minY.toDouble(), if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
+                            val teleportDestination = Location(world, minX.toDouble(), minY.toDouble() + yOffset, if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
                             entity.teleport(teleportDestination)
                             Bukkit.getWorld(teleportDestination.world.name)
                                 ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
@@ -106,14 +107,14 @@ class Teleporter {
                     while (minZ < maxZ) {
                         if (isAirGapX(world, minX, minY, minZ)) {
                             createFloatingPortalX(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble(), minZ.toDouble())
+                            val teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble() + yOffset, minZ.toDouble())
                             entity.teleport(teleportDestination)
                             Bukkit.getWorld(teleportDestination.world.name)
                                 ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
                             return
                         } else if (isAirGapZ(world, minX, minY, minZ)) {
                             createFloatingPortalZ(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, minX.toDouble(), minY.toDouble(), if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
+                            val teleportDestination = Location(world, minX.toDouble(), minY.toDouble() + yOffset, if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
                             entity.teleport(teleportDestination)
                             Bukkit.getWorld(teleportDestination.world.name)
                                 ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
