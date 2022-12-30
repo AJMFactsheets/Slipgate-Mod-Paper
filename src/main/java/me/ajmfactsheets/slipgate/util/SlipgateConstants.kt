@@ -13,5 +13,7 @@ class SlipgateConstants {
         const val OVERWORLD_WORLD_NAME = "world"
         const val NETHER_WORLD_NAME = "world_nether"
         const val SLIP_WORLD_NAME = "world_slipgate_the_slip"
+        const val MIN_HEIGHT_MODIFIER = 1
+        const val MAX_HEIGHT_MODIFIER = 5
     }
 }

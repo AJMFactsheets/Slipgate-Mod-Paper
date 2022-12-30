@@ -13,20 +13,23 @@ import kotlin.random.Random
 class Teleporter {
 
     companion object {
-        val xzOffset = 0.5
-        val yOffset = 0.5
+        private const val xzOffset = 0.5
+        private const val xzOffsetGen = 1 + xzOffset
+        private const val yOffset = 0.5
 
         // TODO Travel.ogg not heard in End
         // TODO Make this work for entities as well not just players, see TeleportListener.kt for player implementation
         // TODO Code is very very very laggy when traveling from nether to overworld due to dimension expansion, possible rewrite or limit search radius
         // TODO Potentially add a hashmap cache of portal locations or use vanilla POIs to help with this
+        // TODO Combine the 3 similar while loops and cache the first result for a possible portal generation location for a speedup.
+        // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing.
         fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
             // Search for valid portal block & frame block
             val x = location.x.toInt()
             var minX = x - searchRadius
             var maxX = x + searchRadius
-            var minY = world.minHeight
-            var maxY = world.logicalHeight
+            var minY = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
+            var maxY = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER // Hopefully prevent ILLEGAL bedrock breaking! (Frowned upon by Hause)
             val z = location.z.toInt()
             var minZ = z - searchRadius
             var maxZ = z + searchRadius
@@ -38,18 +41,13 @@ class Teleporter {
                     while (minZ < maxZ) {
                         if (world.getBlockAt(minX, minY, minZ).type == Material.NETHER_PORTAL && world.getBlockAt(minX, minY - 1, minZ).type == frameMaterial) {
                             val axis = (world.getBlockAt(minX, minY, minZ).blockData as Orientable).axis
-                            val teleportDestination: Location
-                            if (axis == Axis.X) {
-                                teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble() + yOffset, minZ.toDouble())
-                            } else if (axis == Axis.Z) {
-                                teleportDestination = Location(world, minX.toDouble(), minY.toDouble() + yOffset, if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
+                            val teleportDestination: Location = if (axis != Axis.Y) {
+                                Location(world, minX.toDouble() + xzOffset, minY.toDouble() + yOffset, minZ.toDouble() + xzOffset)
                             } else {
-                                teleportDestination = Location(world, minX.toDouble(), minY.toDouble() + yOffset, minZ.toDouble())
+                                Location(world, minX.toDouble(), minY.toDouble() + yOffset, minZ.toDouble())
                             }
-
                             entity.teleport(teleportDestination)
-                            Bukkit.getWorld(teleportDestination.world.name)
-                                ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
+                            playRandomPortalSound(teleportDestination)
                             return
                         }
                         minZ++
@@ -74,17 +72,15 @@ class Teleporter {
                     while (minZ < maxZ) {
                         if (isGroundGapX(world, minX, minY, minZ)) {
                             createPortalX(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble() + yOffset, minZ.toDouble())
+                            val teleportDestination = Location(world, minX.toDouble() + xzOffsetGen, minY.toDouble() + yOffset, minZ.toDouble() + xzOffset)
                             entity.teleport(teleportDestination)
-                            Bukkit.getWorld(teleportDestination.world.name)
-                                ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
+                            playRandomPortalSound(teleportDestination)
                             return
                         } else if (isGroundGapZ(world, minX, minY, minZ)) {
                             createPortalZ(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, minX.toDouble(), minY.toDouble() + yOffset, if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
+                            val teleportDestination = Location(world, minX.toDouble() + xzOffset, minY.toDouble() + yOffset, minZ.toDouble() + xzOffsetGen)
                             entity.teleport(teleportDestination)
-                            Bukkit.getWorld(teleportDestination.world.name)
-                                ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
+                            playRandomPortalSound(teleportDestination)
                             return
                         }
                         minZ++
@@ -107,17 +103,15 @@ class Teleporter {
                     while (minZ < maxZ) {
                         if (isAirGapX(world, minX, minY, minZ)) {
                             createFloatingPortalX(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, if (minX > 0) minX.toDouble() + xzOffset else minX.toDouble() - xzOffset, minY.toDouble() + yOffset, minZ.toDouble())
+                            val teleportDestination = Location(world, minX.toDouble() + xzOffsetGen, minY.toDouble() + yOffset, minZ.toDouble() + xzOffset)
                             entity.teleport(teleportDestination)
-                            Bukkit.getWorld(teleportDestination.world.name)
-                                ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
+                            playRandomPortalSound(teleportDestination)
                             return
                         } else if (isAirGapZ(world, minX, minY, minZ)) {
                             createFloatingPortalZ(world, minX, minY, minZ, frameMaterial)
-                            val teleportDestination = Location(world, minX.toDouble(), minY.toDouble() + yOffset, if (minZ > 0) minZ.toDouble() + xzOffset else minZ.toDouble() - xzOffset)
+                            val teleportDestination = Location(world, minX.toDouble() + xzOffset, minY.toDouble() + yOffset, minZ.toDouble() + xzOffsetGen)
                             entity.teleport(teleportDestination)
-                            Bukkit.getWorld(teleportDestination.world.name)
-                                ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
+                            playRandomPortalSound(teleportDestination)
                             return
                         }
                         minZ++
@@ -127,26 +121,24 @@ class Teleporter {
                 minX++
             }
             // Else just destroy blocks at location and force a portal
+            val yClamped = this.clampLogicalDimensionY(location.y.toInt(), world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER , world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER)
             val teleportDestination: Location = if (Random.nextBoolean()) {
-                createFloatingPortalX(world, x, location.y.toInt(), z, frameMaterial)
-                Location(world, if (x > 0) x.toDouble() + xzOffset else x.toDouble() - xzOffset, location.y + yOffset, z.toDouble())
+                createFloatingPortalX(world, x, yClamped, z, frameMaterial)
+                Location(world, x.toDouble() + xzOffsetGen, yClamped + yOffset, z.toDouble() + xzOffset)
             } else {
-                createFloatingPortalZ(world, x, location.y.toInt(), z, frameMaterial)
-                Location(world, x.toDouble(), location.y + yOffset, if (z > 0) z.toDouble() + xzOffset else z.toDouble() - xzOffset)
+                createFloatingPortalZ(world, x, yClamped, z, frameMaterial)
+                Location(world, x.toDouble() + xzOffset, yClamped + yOffset, z.toDouble() + xzOffsetGen)
             }
-
-//            createFloatingPortalX(world, x, location.y.toInt(), z, frameMaterial)
-//            val teleportDestination = Location(world, if (x > 0) x.toDouble() + xzOffset else x.toDouble() - xzOffset, location.y + yOffset, z.toDouble())
-
             entity.teleport(teleportDestination)
-            Bukkit.getWorld(teleportDestination.world.name)
-                ?.playSound(entity, Sound.BLOCK_PORTAL_TRAVEL, 1f, 1f)
+            playRandomPortalSound(teleportDestination)
         }
 
         private fun isGroundGapX(world: World, x: Int, y: Int, z: Int): Boolean {
-            for (cury in y - 1 until y) {
-                if (!world.getBlockAt(x, cury, z).isSolid) {
-                    return false
+            for (curx in x .. x + 3) {
+                for (cury in y - 1 until y) {
+                    if (!world.getBlockAt(curx, cury, z).isSolid) {
+                        return false
+                    }
                 }
             }
             return isAirGapX(world, x, y, z)
@@ -165,7 +157,7 @@ class Teleporter {
 
         private fun createFloatingPortalX(world: World, x: Int, y: Int, z: Int, frame: Material) {
             for (curx in x + 1 .. x + 2) {
-                for (cury in y - 1 .. y + 3) {
+                for (cury in y - 1 .. y + 2) {
                     for (curz in z - 1 .. z + 1) {
                         if (curz == z) {
                             continue
@@ -198,9 +190,11 @@ class Teleporter {
         }
 
         private fun isGroundGapZ(world: World, x: Int, y: Int, z: Int): Boolean {
-            for (cury in y - 1 until y) {
-                if (!world.getBlockAt(x, cury, z).isSolid) {
-                    return false
+            for (curz in z .. z + 3) {
+                for (cury in y - 1 until y) {
+                    if (!world.getBlockAt(x, cury, curz).isSolid) {
+                        return false
+                    }
                 }
             }
             return isAirGapZ(world, x, y, z)
@@ -219,7 +213,7 @@ class Teleporter {
 
         private fun createFloatingPortalZ(world: World, x: Int, y: Int, z: Int, frame: Material) {
             for (curz in z + 1 .. z + 2) {
-                for (cury in y - 1 .. y + 3) {
+                for (cury in y - 1 .. y + 2) {
                     for (curx in x - 1 .. x + 1) {
                         if (curx == x) {
                             continue
@@ -245,7 +239,7 @@ class Teleporter {
                     }
                 }
             }
-            // Need to create frame, then fill in portal or else it doesn't work.
+            // Need to create frame, then fill in portal or else it doesn't work. Probably block updates.
             portalBlockList.forEach {
                 val block = world.getBlockAt(it)
                 block.type = Material.NETHER_PORTAL
@@ -254,6 +248,23 @@ class Teleporter {
                 block.blockData = blockdata
             }
         }
-    }
 
+        private fun clampLogicalDimensionY(y: Int, yMin: Int, yMax: Int): Int {
+            return if (y < yMin) {
+                yMin
+            } else if (y > yMax) {
+                yMax
+            } else {
+                y
+            }
+        }
+
+        /**
+         * Random portal sound pitch from 0.8 - 1.2 which sounds very similar to the vanilla range, but I didn't check exactly
+         */
+        private fun playRandomPortalSound(location: Location) {
+            Bukkit.getWorld(location.world.name)?.playSound(location, Sound.BLOCK_PORTAL_TRAVEL, 1f, Random.nextFloat() * 0.4f + 0.8f)
+        }
+
+    }
 }
