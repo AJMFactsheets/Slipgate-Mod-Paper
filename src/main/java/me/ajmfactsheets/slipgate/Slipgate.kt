@@ -1,6 +1,7 @@
 package me.ajmfactsheets.slipgate
 
 import me.ajmfactsheets.slipgate.listeners.BlockListener
+import me.ajmfactsheets.slipgate.listeners.ChatListener
 import me.ajmfactsheets.slipgate.listeners.TeleportListener
 import me.ajmfactsheets.slipgate.util.PortalCache
 import org.bukkit.Bukkit
@@ -10,7 +11,8 @@ class Slipgate : JavaPlugin() {
 
     override fun onEnable() {
         server.pluginManager.registerEvents(BlockListener(), this)
-        server.pluginManager.registerEvents(TeleportListener(), this)
+        server.pluginManager.registerEvents(TeleportListener(this), this)
+        server.pluginManager.registerEvents(ChatListener(), this)
 
         // Remove expired locations from portal cache
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, Runnable {

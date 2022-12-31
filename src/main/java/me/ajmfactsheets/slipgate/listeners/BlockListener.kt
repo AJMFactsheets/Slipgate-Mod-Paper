@@ -6,13 +6,10 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.data.Orientable
-//import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.world.PortalCreateEvent
-
-//import org.bukkit.event.player.AsyncPlayerChatEvent
 
 class BlockListener: Listener {
 
@@ -38,18 +35,6 @@ class BlockListener: Listener {
             }
         }
     }
-
-//    @EventHandler
-//    fun onChat(e: AsyncPlayerChatEvent) {
-//        e.isCancelled = true
-//        val message = String.format(e.format, e.player.name, e.message)
-//        Bukkit.getConsoleSender().sendMessage(message)
-//
-//        for(player: Player in e.recipients) {
-//            player.sendMessage(e.player.uniqueId, message)
-//        }
-//
-//    }
 
     private fun isPortalFrameValid(location: Location): Axis? {
         val currentLocation = location.clone()
