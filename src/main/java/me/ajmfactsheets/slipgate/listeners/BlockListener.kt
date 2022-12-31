@@ -1,6 +1,6 @@
 package me.ajmfactsheets.slipgate.listeners
 
-import me.ajmfactsheets.slipgate.util.SlipgateConstants
+import me.ajmfactsheets.slipgate.constants.SlipgateConstants
 import org.bukkit.Axis
 import org.bukkit.Location
 import org.bukkit.Material

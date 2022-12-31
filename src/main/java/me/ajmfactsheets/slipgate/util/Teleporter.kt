@@ -1,5 +1,6 @@
 package me.ajmfactsheets.slipgate.util
 
+import me.ajmfactsheets.slipgate.constants.SlipgateConstants
 import org.bukkit.Axis
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -20,10 +21,17 @@ class Teleporter {
         // TODO Travel.ogg not heard in End
         // TODO Make this work for entities as well not just players, see TeleportListener.kt for player implementation
         // TODO Code is very very very laggy when traveling from nether to overworld due to dimension expansion, possible rewrite or limit search radius
-        // TODO Potentially add a hashmap cache of portal locations or use vanilla POIs to help with this
         // TODO Combine the 3 similar while loops and cache the first result for a possible portal generation location for a speedup.
         // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing.
         fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
+            // Check portal cache
+            val cachedLocation = PortalCache.getCacheEntry(entity.world.name, world.name, location, searchRadius)
+            if (cachedLocation != null) {
+                entity.teleport(cachedLocation)
+                playRandomPortalSound(cachedLocation)
+                return
+            }
+
             // Search for valid portal block & frame block
             val x = location.x.toInt()
             var minX = x - searchRadius
@@ -46,6 +54,7 @@ class Teleporter {
                             } else {
                                 Location(world, minX.toDouble(), minY.toDouble() + yOffset, minZ.toDouble())
                             }
+                            PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
                             entity.teleport(teleportDestination)
                             playRandomPortalSound(teleportDestination)
                             return
@@ -73,12 +82,14 @@ class Teleporter {
                         if (isGroundGapX(world, minX, minY, minZ)) {
                             createPortalX(world, minX, minY, minZ, frameMaterial)
                             val teleportDestination = Location(world, minX.toDouble() + xzOffsetGen, minY.toDouble() + yOffset, minZ.toDouble() + xzOffset)
+                            PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
                             entity.teleport(teleportDestination)
                             playRandomPortalSound(teleportDestination)
                             return
                         } else if (isGroundGapZ(world, minX, minY, minZ)) {
                             createPortalZ(world, minX, minY, minZ, frameMaterial)
                             val teleportDestination = Location(world, minX.toDouble() + xzOffset, minY.toDouble() + yOffset, minZ.toDouble() + xzOffsetGen)
+                            PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
                             entity.teleport(teleportDestination)
                             playRandomPortalSound(teleportDestination)
                             return
@@ -104,12 +115,14 @@ class Teleporter {
                         if (isAirGapX(world, minX, minY, minZ)) {
                             createFloatingPortalX(world, minX, minY, minZ, frameMaterial)
                             val teleportDestination = Location(world, minX.toDouble() + xzOffsetGen, minY.toDouble() + yOffset, minZ.toDouble() + xzOffset)
+                            PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
                             entity.teleport(teleportDestination)
                             playRandomPortalSound(teleportDestination)
                             return
                         } else if (isAirGapZ(world, minX, minY, minZ)) {
                             createFloatingPortalZ(world, minX, minY, minZ, frameMaterial)
                             val teleportDestination = Location(world, minX.toDouble() + xzOffset, minY.toDouble() + yOffset, minZ.toDouble() + xzOffsetGen)
+                            PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
                             entity.teleport(teleportDestination)
                             playRandomPortalSound(teleportDestination)
                             return
@@ -129,6 +142,7 @@ class Teleporter {
                 createFloatingPortalZ(world, x, yClamped, z, frameMaterial)
                 Location(world, x.toDouble() + xzOffset, yClamped + yOffset, z.toDouble() + xzOffsetGen)
             }
+            PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
             entity.teleport(teleportDestination)
             playRandomPortalSound(teleportDestination)
         }

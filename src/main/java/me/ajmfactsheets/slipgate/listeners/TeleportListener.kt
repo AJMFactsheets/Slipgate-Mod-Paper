@@ -1,6 +1,6 @@
 package me.ajmfactsheets.slipgate.listeners
 
-import me.ajmfactsheets.slipgate.util.SlipgateConstants
+import me.ajmfactsheets.slipgate.constants.SlipgateConstants
 import me.ajmfactsheets.slipgate.util.Teleporter
 import org.bukkit.Bukkit
 import org.bukkit.Material
