@@ -5,7 +5,7 @@ import org.bukkit.Location
 
 object PortalCache {
 
-    private data class CacheEntry(
+    private data class CacheEntry (
         val location: Location,
         var ttl: Int
     )

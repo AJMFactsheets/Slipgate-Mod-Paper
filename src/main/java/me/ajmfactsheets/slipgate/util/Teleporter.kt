@@ -38,14 +38,14 @@ object Teleporter {
         // Search for valid portal block & frame block
         val x = location.x.toInt()
         var minX = x - searchRadius
-        var maxX = x + searchRadius
+        val maxX = x + searchRadius
         val minXCreate = x - createRadius
         val maxXCreate = x + createRadius
         var minY = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
-        var maxY = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER // Hopefully prevent ILLEGAL bedrock breaking! (Frowned upon by Hause)
+        val maxY = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER // Hopefully prevent ILLEGAL bedrock breaking! (Frowned upon by Hause)
         val z = location.z.toInt()
         var minZ = z - searchRadius
-        var maxZ = z + searchRadius
+        val maxZ = z + searchRadius
         val minZCreate = z - createRadius
         val maxZCreate = z + createRadius
 
@@ -53,7 +53,7 @@ object Teleporter {
         var airGapLocation: PortalDestination? = null
 
         while (minX < maxX) {
-            minY = world.minHeight
+            minY = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
             while (minY < maxY) {
                 minZ = z - searchRadius
                 while (minZ < maxZ) {
@@ -75,7 +75,8 @@ object Teleporter {
                             } else if (isGroundGapZ(world, minX, minY, minZ)) {
                                 groundGapLocation = PortalDestination(minX, minY, minZ, Axis.Z)
                             }
-                        } else if (airGapLocation == null) {
+                        }
+                        if (airGapLocation == null) {
                             if (isAirGapX(world, minX, minY, minZ)) {
                                 airGapLocation = PortalDestination(minX, minY, minZ, Axis.X)
                             } else if (isAirGapZ(world, minX, minY, minZ)) {

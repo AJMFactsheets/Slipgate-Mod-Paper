@@ -17,10 +17,6 @@ import kotlin.random.Random
 
 class TeleportListener(private var plugin: JavaPlugin) : Listener {
 
-    fun TeleportListener(plugin: JavaPlugin) {
-        this.plugin = plugin
-    }
-
     @EventHandler
     fun useNetherPortalEntity(event: EntityPortalEvent) {
         val currentWorldName = event.entity.world.name
@@ -160,6 +156,7 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
             }
         }
         else {
+            // Fixes travel.ogg in the End dimension
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, {
                 Bukkit.getWorld(event.to.world.name)?.playSound(event.to, Sound.BLOCK_PORTAL_TRAVEL, 1f, Random.nextFloat() * 0.4f + 0.8f)
             }, 1)

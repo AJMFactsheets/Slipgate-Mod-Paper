@@ -13,7 +13,10 @@ import org.bukkit.event.world.PortalCreateEvent
 
 class BlockListener: Listener {
 
-    data class PortalDirectionData (var width: Int = 1, var isValid: Boolean = true)
+    private data class PortalDirectionData (
+        var width: Int = 1,
+        var isValid: Boolean = true
+    )
 
     @EventHandler
     fun cancelNetherPortalsInSlip(event: PortalCreateEvent) {
