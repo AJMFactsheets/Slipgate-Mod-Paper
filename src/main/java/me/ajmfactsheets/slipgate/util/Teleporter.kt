@@ -25,7 +25,8 @@ object Teleporter {
     private const val xzOffsetGen = 1 + xzOffset
     private const val yOffset = 0.5
 
-    // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing.
+    // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing. Do you really want y255 portals over the ocean? NO!
+    // TODO It seems like portals aren't synced up if you go through again and again. Could not reproduce in another location, seems to be location dependent.
     fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
         // Check portal cache
         val cachedLocation = PortalCache.getCacheEntry(entity.world.name, world.name, location, searchRadius)
