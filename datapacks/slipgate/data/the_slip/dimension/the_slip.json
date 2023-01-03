@@ -1,5 +1,5 @@
 {
-  "type": "the_slip:the_slip",
+  "type": "slipgate:the_slip",
   "generator": {
     "type": "minecraft:noise",
     "settings": "minecraft:nether",

@@ -30,7 +30,7 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
                     val location = event.from
                     location.x = location.x / 8
                     location.z = location.z / 8
-                    Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.searchRadius / 4)
+                    Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.searchRadius)
                 }
             } else if (currentWorldName == SlipgateConstants.NETHER_WORLD_NAME) {
                 // Make sure we are in a slipgate and not a nether portal
@@ -63,7 +63,7 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
                         val location = event.from
                         location.x = location.x / 8
                         location.z = location.z / 8
-                        Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.searchRadius / 4)
+                        Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.searchRadius)
                     }
                 } else if (tpLocation.block.type == SlipgateConstants.NETHER_PORTAL_MATERIAL) { // Nether to overworld
                     val world = Bukkit.getWorld(SlipgateConstants.OVERWORLD_WORLD_NAME)
@@ -71,7 +71,7 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
                         val location = event.from
                         location.x = location.x * 8
                         location.z = location.z * 8
-                        Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.searchRadius / 4)
+                        Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.searchRadius)
                     }
                 }
                 // Slip to nether
@@ -81,7 +81,7 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
                     val location = event.from
                     location.x = location.x * 8
                     location.z = location.z * 8
-                    Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.searchRadius / 4)
+                    Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.searchRadius)
                 }
             }
         }
