@@ -26,7 +26,7 @@ object Teleporter {
     private const val yOffset = 0.5
 
     // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing. Do you really want y255 portals over the ocean? NO!
-    // TODO It seems like portals aren't synced up if you go through again and again. Also seems to happen with Mojang portals so perhaps I am too faithful to their logic? :P Also related to changing the search/create radius.
+    // TODO Rewrite loop search algorithm to SPIRAL away from the center (This is what Mojang does and should help portals to link up better)
     fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
         // Check portal cache
         val cachedLocation = PortalCache.getCacheEntry(entity.world.name, world.name, location, searchRadius)

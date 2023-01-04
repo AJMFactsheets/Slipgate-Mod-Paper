@@ -9,15 +9,16 @@ import org.bukkit.event.player.AsyncPlayerChatEvent
 class ChatListener: Listener {
 
     // Prevent chat reports from being valid
-    @EventHandler
-    fun onChat(e: AsyncPlayerChatEvent) {
-        e.isCancelled = true
-        val message = String.format(e.format, e.player.name, e.message)
-        Bukkit.getConsoleSender().sendMessage(message)
-
-        for(player: Player in e.recipients) {
-            player.sendMessage(e.player.uniqueId, message)
-        }
-
-    }
+    // Temporarily disabled due to an exploit
+//    @EventHandler
+//    fun onChat(e: AsyncPlayerChatEvent) {
+//        e.isCancelled = true
+//        val message = String.format(e.format, e.player.name, e.message)
+//        Bukkit.getConsoleSender().sendMessage(message)
+//
+//        for(player: Player in e.recipients) {
+//            player.sendMessage(e.player.uniqueId, message)
+//        }
+//
+//    }
 }

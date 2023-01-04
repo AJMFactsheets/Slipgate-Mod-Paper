@@ -3,6 +3,7 @@ package me.ajmfactsheets.slipgate.listeners
 import me.ajmfactsheets.slipgate.constants.SlipgateConstants
 import me.ajmfactsheets.slipgate.util.Teleporter
 import org.bukkit.Bukkit
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.PortalType
 import org.bukkit.Sound
@@ -27,10 +28,11 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
             if (currentWorldName == SlipgateConstants.OVERWORLD_WORLD_NAME) {
                 val world = Bukkit.getWorld(SlipgateConstants.NETHER_WORLD_NAME)
                 if (world != null) {
-                    val location = event.from
+                    var location = event.from
                     location.x = location.x / 8
                     location.z = location.z / 8
-                    Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.searchRadius)
+                    location = clampToWorldBorder(location, event.searchRadius / 8)
+                    Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius / 8, event.searchRadius / 8)
                 }
             } else if (currentWorldName == SlipgateConstants.NETHER_WORLD_NAME) {
                 // Make sure we are in a slipgate and not a nether portal
@@ -60,17 +62,19 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
                 if (tpLocation.block.type == SlipgateConstants.SLIPGATE_MATERIAL) {
                     val world = Bukkit.getWorld(SlipgateConstants.SLIP_WORLD_NAME)
                     if (world != null) {
-                        val location = event.from
+                        var location = event.from
                         location.x = location.x / 8
                         location.z = location.z / 8
-                        Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.searchRadius)
+                        location = clampToWorldBorder(location, event.searchRadius / 8)
+                        Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius / 8, event.searchRadius / 8)
                     }
                 } else if (tpLocation.block.type == SlipgateConstants.NETHER_PORTAL_MATERIAL) { // Nether to overworld
                     val world = Bukkit.getWorld(SlipgateConstants.OVERWORLD_WORLD_NAME)
                     if (world != null) {
-                        val location = event.from
+                        var location = event.from
                         location.x = location.x * 8
                         location.z = location.z * 8
+                        location = clampToWorldBorder(location, event.searchRadius)
                         Teleporter.teleport(event.entity, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.searchRadius)
                     }
                 }
@@ -78,9 +82,10 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
             } else if (currentWorldName == SlipgateConstants.SLIP_WORLD_NAME) {
                 val world = Bukkit.getWorld(SlipgateConstants.NETHER_WORLD_NAME)
                 if (world != null) {
-                    val location = event.from
+                    var location = event.from
                     location.x = location.x * 8
                     location.z = location.z * 8
+                    location = clampToWorldBorder(location, event.searchRadius)
                     Teleporter.teleport(event.entity, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.searchRadius)
                 }
             }
@@ -97,10 +102,11 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
             if (currentWorldName == SlipgateConstants.OVERWORLD_WORLD_NAME) {
                 val world = Bukkit.getWorld(SlipgateConstants.NETHER_WORLD_NAME)
                 if (world != null) {
-                    val location = event.from
+                    var location = event.from
                     location.x = location.x / 8
                     location.z = location.z / 8
-                    Teleporter.teleport(event.player, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.creationRadius)
+                    location = clampToWorldBorder(location, event.searchRadius / 8)
+                    Teleporter.teleport(event.player, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius / 8, event.creationRadius)
                 }
             } else if (currentWorldName == SlipgateConstants.NETHER_WORLD_NAME) {
                 // Make sure we are in a slipgate and not a nether portal
@@ -130,17 +136,19 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
                 if (tpLocation.block.type == SlipgateConstants.SLIPGATE_MATERIAL) {
                     val world = Bukkit.getWorld(SlipgateConstants.SLIP_WORLD_NAME)
                     if (world != null) {
-                        val location = event.from
+                        var location = event.from
                         location.x = location.x / 8
                         location.z = location.z / 8
-                        Teleporter.teleport(event.player, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.creationRadius)
+                        location = clampToWorldBorder(location, event.searchRadius / 8)
+                        Teleporter.teleport(event.player, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius / 8, event.creationRadius)
                     }
                 } else if (tpLocation.block.type == SlipgateConstants.NETHER_PORTAL_MATERIAL) { // Nether to overworld
                    val world = Bukkit.getWorld(SlipgateConstants.OVERWORLD_WORLD_NAME)
                     if (world != null) {
-                        val location = event.from
+                        var location = event.from
                         location.x = location.x * 8
                         location.z = location.z * 8
+                        location = clampToWorldBorder(location, event.searchRadius)
                         Teleporter.teleport(event.player, location, world, SlipgateConstants.NETHER_PORTAL_MATERIAL, event.searchRadius, event.creationRadius)
                     }
                 }
@@ -148,9 +156,10 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
             } else if (currentWorldName == SlipgateConstants.SLIP_WORLD_NAME) {
                 val world = Bukkit.getWorld(SlipgateConstants.NETHER_WORLD_NAME)
                 if (world != null) {
-                    val location = event.from
+                    var location = event.from
                     location.x = location.x * 8
                     location.z = location.z * 8
+                    location = clampToWorldBorder(location, event.searchRadius)
                     Teleporter.teleport(event.player, location, world, SlipgateConstants.SLIPGATE_MATERIAL, event.searchRadius, event.creationRadius)
                 }
             }
@@ -160,6 +169,31 @@ class TeleportListener(private var plugin: JavaPlugin) : Listener {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, {
                 Bukkit.getWorld(event.to.world.name)?.playSound(event.to, Sound.BLOCK_PORTAL_TRAVEL, 1f, Random.nextFloat() * 0.4f + 0.8f)
             }, 1)
+        }
+    }
+
+    private fun clampToWorldBorder(location: Location, safetyMargin: Int): Location {
+        val center = location.world.worldBorder.center
+        val radius = location.world.worldBorder.size / 2
+        val minX = center.x - radius + safetyMargin
+        val maxX = center.x + radius - safetyMargin
+        val minZ = center.z - radius + safetyMargin
+        val maxZ = center.z + radius - safetyMargin
+
+        return if (location.x in minX .. maxX && location.z in minZ .. maxZ) {
+            location
+        } else {
+            Location(location.world, clampLocation(location.x, minX, maxX), location.y, clampLocation(location.z, minZ, maxZ))
+        }
+    }
+
+    private fun clampLocation(value: Double, min: Double, max: Double): Double {
+        return if (value < min) {
+            min
+        } else if (value > max) {
+            max
+        } else {
+            value
         }
     }
 }
