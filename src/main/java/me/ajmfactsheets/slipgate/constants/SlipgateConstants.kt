@@ -11,9 +11,12 @@ object SlipgateConstants {
     val NETHER_PORTAL_MATERIAL = Material.OBSIDIAN
     const val OVERWORLD_WORLD_NAME = "world"
     const val NETHER_WORLD_NAME = "world_nether"
-    const val SLIP_WORLD_NAME = "world_slipgate_the_slip"
-    const val MIN_HEIGHT_MODIFIER = 1
-    const val MAX_HEIGHT_MODIFIER = 5
+    const val DEFAULT_SLIP_WORLD_NAME =  "world_slipgate_the_slip"
+    // Not ideal that these can be modified in code
+    var SLIP_WORLD_NAME = "world_slipgate_the_slip"
+    var MIN_HEIGHT_MODIFIER = 2
+    var MAX_HEIGHT_MODIFIER = 5
+    var PORTALS_SEARCH_TOP_TO_BOTTOM = false
 
-    const val CACHE_TTL = 5 // In minutes
+    var CACHE_TTL = 5 // In minutes
 }

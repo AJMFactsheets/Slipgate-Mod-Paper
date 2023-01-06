@@ -26,7 +26,6 @@ object Teleporter {
     private const val yOffset = 0.5
 
     // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing. Do you really want y255 portals over the ocean? NO!
-    // TODO Rewrite loop search algorithm to SPIRAL away from the center (This is what Mojang does and should help portals to link up better)
     fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
         // Check portal cache
         val cachedLocation = PortalCache.getCacheEntry(entity.world.name, world.name, location, searchRadius)
@@ -38,58 +37,92 @@ object Teleporter {
 
         // Search for valid portal block & frame block
         val x = location.x.toInt()
-        var minX = x - searchRadius
-        val maxX = x + searchRadius
+        var xCur = x
         val minXCreate = x - createRadius
         val maxXCreate = x + createRadius
-        var minY = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
+        var yCur = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
+        var yStop = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER
+        val minY = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
         val maxY = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER // Hopefully prevent ILLEGAL bedrock breaking! (Frowned upon by Hause)
         val z = location.z.toInt()
-        var minZ = z - searchRadius
-        val maxZ = z + searchRadius
+        var zCur = z
         val minZCreate = z - createRadius
         val maxZCreate = z + createRadius
 
         var groundGapLocation: PortalDestination? = null
         var airGapLocation: PortalDestination? = null
 
-        while (minX < maxX) {
-            minY = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
-            while (minY < maxY) {
-                minZ = z - searchRadius
-                while (minZ < maxZ) {
-                    if (world.getBlockAt(minX, minY, minZ).type == Material.NETHER_PORTAL && world.getBlockAt(minX, minY - 1, minZ).type == frameMaterial) {
-                        val axis = (world.getBlockAt(minX, minY, minZ).blockData as Orientable).axis
+        // Next direction to move x & z
+        var dx = 1
+        var dy = 1
+        var dz = 0
+        // Max length before direction change
+        var sideLength = 1
+        var currentLength = 0
+        // When to stop the spiral
+        val maxLength = searchRadius * 2
+
+        while (currentLength <= maxLength) {
+            if (SlipgateConstants.PORTALS_SEARCH_TOP_TO_BOTTOM) {
+                yCur = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER
+                yStop = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
+                dy = -1
+            } else {
+                yCur = world.minHeight + SlipgateConstants.MIN_HEIGHT_MODIFIER
+                yStop = world.logicalHeight - SlipgateConstants.MAX_HEIGHT_MODIFIER
+                dy = 1
+            }
+
+            while (yCur != yStop) {
+                if (world.getBlockAt(xCur, yCur, zCur).type == Material.NETHER_PORTAL && world.getBlockAt(xCur, yCur - 1, zCur).type == frameMaterial) {
+                        val axis = (world.getBlockAt(xCur, yCur, zCur).blockData as Orientable).axis
                         val teleportDestination: Location = if (axis != Axis.Y) {
-                            Location(world, minX.toDouble() + xzOffset, minY.toDouble() + yOffset, minZ.toDouble() + xzOffset)
+                            Location(world, xCur.toDouble() + xzOffset, yCur.toDouble() + yOffset, zCur.toDouble() + xzOffset)
                         } else {
-                            Location(world, minX.toDouble(), minY.toDouble() + yOffset, minZ.toDouble())
+                            Location(world, xCur.toDouble(), yCur.toDouble() + yOffset, zCur.toDouble())
                         }
                         PortalCache.addCacheEntry(entity.world.name, world.name, teleportDestination)
                         entity.teleport(teleportDestination)
                         if (entity is Player) playRandomPortalSound(teleportDestination)
                         return
-                    } else if (x in minXCreate .. maxXCreate && z in minZCreate .. maxZCreate && (groundGapLocation == null || airGapLocation == null)) { // Check possible ground / air location to generate portal
+                    } else if (xCur in minXCreate .. maxXCreate && zCur in minZCreate .. maxZCreate && (groundGapLocation == null || airGapLocation == null)) { // Check possible ground / air location to generate portal
                         if (groundGapLocation == null) {
-                            if (isGroundGapX(world, minX, minY, minZ)) {
-                                groundGapLocation = PortalDestination(minX, minY, minZ, Axis.X)
-                            } else if (isGroundGapZ(world, minX, minY, minZ)) {
-                                groundGapLocation = PortalDestination(minX, minY, minZ, Axis.Z)
+                            if (isGroundGapX(world, xCur, yCur, zCur)) {
+                                groundGapLocation = PortalDestination(xCur, yCur, zCur, Axis.X)
+                            } else if (isGroundGapZ(world, xCur, yCur, zCur)) {
+                                groundGapLocation = PortalDestination(xCur, yCur, zCur, Axis.Z)
                             }
                         }
                         if (airGapLocation == null) {
-                            if (isAirGapX(world, minX, minY, minZ)) {
-                                airGapLocation = PortalDestination(minX, minY, minZ, Axis.X)
-                            } else if (isAirGapZ(world, minX, minY, minZ)) {
-                                airGapLocation = PortalDestination(minX, minY, minZ, Axis.Z)
+                            if (isAirGapX(world, xCur, yCur, zCur)) {
+                                airGapLocation = PortalDestination(xCur, yCur, zCur, Axis.X)
+                            } else if (isAirGapZ(world, xCur, yCur, zCur)) {
+                                airGapLocation = PortalDestination(xCur, yCur, zCur, Axis.Z)
                             }
                         }
                     }
-                    minZ++
-                }
-                minY++
+                yCur += dy
             }
-            minX++
+
+            // Move to next block in spiral
+            xCur += dx
+            zCur += dz
+            ++currentLength
+
+            // Done with one side of spiral
+            if (currentLength == sideLength) {
+                currentLength = 0
+
+                // Change direction
+                val temp = dx
+                dx = -dz
+                dz = temp
+
+                // If we've made 1/2 revolution, increase the length of the next run
+                if (dz == 0) {
+                    ++sideLength
+                }
+            }
         }
 
         // place portal in valid 4x4 air gap adjacent to ground
