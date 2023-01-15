@@ -2,12 +2,12 @@
   "type": "slipgate:the_slip",
   "generator": {
     "type": "minecraft:noise",
-    "settings": "minecraft:nether",
+    "settings": "slipgate:slip_noise",
     "biome_source": {
       "type": "minecraft:multi_noise",
       "biomes": [
         {
-          "biome": "minecraft:nether_wastes",
+          "biome": "slipgate:slip_wastes",
           "parameters": {
             "temperature": 0,
             "humidity": 0,
@@ -16,18 +16,6 @@
             "weirdness": 0.5,
             "depth": 0,
             "offset": 0.125
-          }
-        },
-        {
-          "biome": "minecraft:basalt_deltas",
-          "parameters": {
-            "temperature": -0.5,
-            "humidity": 0,
-            "continentalness": 0,
-            "erosion": 0.125,
-            "weirdness": 0,
-            "depth": 0,
-            "offset": 0.75
           }
         }
       ]
