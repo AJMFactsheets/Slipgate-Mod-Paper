@@ -25,11 +25,10 @@ object Teleporter {
     private const val xzOffsetGen = 1 + xzOffset
     private const val yOffset = 0.5
 
-    // TODO Reverse min & max Y so you don't spawn as much underground? Would probably make performance a bit worse so do some testing. Do you really want y255 portals over the ocean? NO!
     fun teleport(entity: Entity, location: Location, world: World, frameMaterial: Material, searchRadius: Int, createRadius: Int) {
         // Check portal cache
         val cachedLocation = PortalCache.getCacheEntry(entity.world.name, world.name, location, searchRadius)
-        if (cachedLocation != null) {
+        if (cachedLocation != null && cachedLocation.world.getBlockAt(cachedLocation).type == Material.NETHER_PORTAL) { // Prevent teleporting to stale broken portals
             entity.teleport(cachedLocation)
             if (entity is Player) playRandomPortalSound(cachedLocation)
             return

@@ -15,7 +15,7 @@ class ChatListener: Listener {
         val message = String.format(e.format, e.player.name, e.message)
         Bukkit.getConsoleSender().sendMessage(message)
 
-        for(player: Player in e.recipients) {
+        for (player : Player in e.recipients) {
             player.sendMessage(e.player.uniqueId, message)
         }
 

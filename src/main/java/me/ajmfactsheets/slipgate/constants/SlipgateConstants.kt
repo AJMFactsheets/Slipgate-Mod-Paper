@@ -12,7 +12,8 @@ object SlipgateConstants {
     const val OVERWORLD_WORLD_NAME = "world"
     const val NETHER_WORLD_NAME = "world_nether"
     const val DEFAULT_SLIP_WORLD_NAME =  "world_slipgate_the_slip"
-    // Not ideal that these can be modified in code
+
+    // Not ideal that these can be modified in code but needed for config file to dynamically load in
     var SLIP_WORLD_NAME = "world_slipgate_the_slip"
     var MIN_HEIGHT_MODIFIER = 2
     var MAX_HEIGHT_MODIFIER = 5
