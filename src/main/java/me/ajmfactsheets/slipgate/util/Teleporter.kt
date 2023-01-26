@@ -301,10 +301,10 @@ object Teleporter {
     }
 
     /**
-     * Random portal sound pitch from 0.8 - 1.2 which sounds very similar to the vanilla range, but I didn't check exactly
+     * Random portal sound pitch from 0.8 - 1.2 that exactly emulates vanilla code. :D
      */
     private fun playRandomPortalSound(location: Location) {
-        Bukkit.getWorld(location.world.name)?.playSound(location, Sound.BLOCK_PORTAL_TRAVEL, 1f, Random.nextFloat() * 0.4f + 0.8f)
+        Bukkit.getWorld(location.world.name)?.playSound(location, Sound.BLOCK_PORTAL_TRAVEL, 0.25f, Random.nextFloat() * 0.4f + 0.8f)
     }
 
 }
