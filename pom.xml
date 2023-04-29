@@ -6,7 +6,7 @@
 
     <groupId>me.ajmfactsheets</groupId>
     <artifactId>slipgate</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Slipgate</name>
@@ -18,8 +18,8 @@
     <properties>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.8.0</kotlin.version>
-        <paper.version>1.19.3-R0.1-SNAPSHOT</paper.version>
+        <kotlin.version>1.8.21</kotlin.version>
+        <paper.version>1.19.4-R0.1-SNAPSHOT</paper.version>
     </properties>
     <url>https://www.github.com/AJMFactsheets</url>
 
